@@ -1,14 +1,12 @@
 # iPhone Use
 
-![iPhone Use controlling a real iPhone in Codex with a live screen preview](assets/iphone-use-demo.png)
+Let Claude Code operate your real iPhone over USB. Describe a task in natural language: open apps, read screens, tap, scroll, enter text, and collect lists.
 
-Let Codex operate your real iPhone over USB. Describe a task in natural language: open apps, read screens, tap, scroll, enter text, collect lists, and watch the phone in a sidebar widget.
-
-The plugin connects to [WebDriverAgent](https://github.com/appium/WebDriverAgent) (WDA). It includes a local MCP server, setup and usage skills, and a live screen widget. It reuses healthy connections and existing builds; when element targeting fails, it guides the model to inspect a screenshot and try coordinates.
+The plugin connects to [WebDriverAgent](https://github.com/appium/WebDriverAgent) (WDA). It includes a local MCP server, setup and usage skills. It reuses healthy connections and existing builds; when element targeting fails, it guides the model to inspect a screenshot and try coordinates.
 
 The plugin sends anonymous usage statistics to its own PostHog project by default: starts, tool calls, connection results, durations and error categories. It uses a random installation ID and never uploads phone images, input text or device identifiers. Set `IPHONE_USE_ANALYTICS=0` or `DO_NOT_TRACK=1` and restart the MCP server to disable it. See [analytics documentation](ANALYTICS.md).
 
-**Before using iPhone Use, install, sign, and start WDA Runner on your own iPhone.** WDA is the on-device execution service. The prompt and setup workflow below can help Codex complete the initial installation; a healthy existing WDA can be reused.
+**Before using iPhone Use, install, sign, and start WDA Runner on your own iPhone.** WDA is the on-device execution service. The setup workflow below helps Claude complete the initial installation; a healthy existing WDA can be reused.
 
 ## Claude Code quick start (team)
 
@@ -24,40 +22,13 @@ git clone https://github.com/khilan-vasundhara/iPhoneUse.git ~/iPhoneUse
 sh ~/iPhoneUse/scripts/install-claude.sh
 ```
 
-Restart Claude Code, then ask: *"Use iphone-use-setup to configure my iPhone"*. Each teammate needs full Xcode, their own Apple dev team, and an iPhone on USB (trusted, Developer Mode on). Set `IPHONE_USE_ANALYTICS=0` to disable telemetry. The live-screen widget is Codex-only; Claude uses screenshots.
-
-## Ask Codex to install it
-
-Paste this prompt into Codex running on your Mac:
-
-```text
-Install and configure iPhone Use for me:
-https://github.com/khilan-vasundhara/iPhoneUse
-
-Read the repository README and installation script first. Check Codex CLI,
-Python, Node.js, npm, full Xcode, and the iPhone connected over USB.
-Clone the project into a suitable local directory and run sh scripts/install.sh.
-
-If this chat cannot load the new tools, tell me to reconnect or start a new chat
-and continue there. Once tools are available, read the iphone-use-setup skill.
-Inspect existing configuration and reuse healthy WDA. For initial setup,
-discover my device, use my own Apple development team and signable bundle ID,
-fetch the pinned WDA, configure signing, build and start it. Continue until
-pua_ready returns ready=true, then show the phone screen. Do not reuse the
-author's device identifiers or signing configuration.
-
-Help resolve missing dependencies. If Apple account login, device trust,
-Developer Mode, or unlocking needs my input, explain the exact steps and wait
-for me to complete them before continuing.
-```
-
-A reconnect may be required to load newly installed tools. Apple account login, device trust, Developer Mode, and unlocking must be completed by the device owner in the system UI. The repository is currently private; GitHub access or a source package is required.
+Restart Claude Code, then ask: *"Use iphone-use-setup to configure my iPhone"*. Each teammate needs full Xcode, their own Apple dev team, and an iPhone on USB (trusted, Developer Mode on). Set `IPHONE_USE_ANALYTICS=0` to disable telemetry. The live-screen widget is Codex-only; Claude Code uses screenshots.
 
 ## Requirements
 
 | Requirement | Purpose |
 | --- | --- |
-| macOS and Codex desktop / CLI | Local plugin installation, MCP, and the screen sidebar |
+| macOS and Claude Code | Local plugin installation and MCP |
 | Full Xcode with first-launch setup completed | Build, sign, deploy, and run WDA; Command Line Tools alone are insufficient |
 | An Apple account and development team available in Xcode | Sign the on-device WDA Runner |
 | A real iPhone connected over USB | Trust the Mac, enable Developer Mode when required, and keep it unlocked during installation / startup |
@@ -70,7 +41,7 @@ Xcode must support the phone's iOS version. No jailbreak or separate Appium Serv
 
 The phone-side service comes from [Appium's WebDriverAgent](https://github.com/appium/WebDriverAgent). First-time setup signs and installs `WebDriverAgentRunner` using your own Apple account and development team.
 
-The installation prompt and `iphone-use-setup` workflow fetch the project's pinned WDA version, configure signing, build, deploy, and start it. Codex will explain any steps requiring your input.
+The installation prompt and `iphone-use-setup` workflow fetch the project's pinned WDA version, configure signing, build, deploy, and start it. Claude will explain any steps requiring your input.
 
 For manual Xcode setup:
 
@@ -82,19 +53,13 @@ After installing the plugin and configuring USB connectivity, start phone tasks 
 
 ## Install and connect
 
-```sh
-git clone https://github.com/khilan-vasundhara/iPhoneUse.git
-cd iPhoneUse
-sh scripts/install.sh
-```
+See **Claude Code quick start** above. After installing, restart Claude Code and ask:
 
-The installer validates and stages the source, registers a local Codex marketplace, installs the plugin and skills, and registers the installed server as standard MCP `iphone_use`. Plugin and standard configuration share the same namespace to avoid duplicate tools. An extracted source package uses the same installation command.
-
-Reconnect or start a new chat, enable **iPhone Use**, and ask:
-
-> Use iphone-use-setup to configure my USB-connected iPhone, install and start WDA, verify READY, and show the phone screen.
+> Use iphone-use-setup to configure my USB-connected iPhone, install and start WDA, and verify READY.
 
 Setup covers diagnostics, device discovery, signing configuration, download, background build, and startup. Existing configurations and builds are reused. Phone tasks start only after `pua_ready` returns `ready=true`.
+
+Codex users can still run `sh scripts/install.sh`.
 
 ## Features
 
