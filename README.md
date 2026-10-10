@@ -1,167 +1,84 @@
-# iPhone Use
+# iPhone Use for Claude Code
 
-Let Claude Code operate your real iPhone over USB. Describe a task in natural language: open apps, read screens, tap, scroll, enter text, and collect lists.
+Let Claude Code test apps on a **real iPhone** over USB. Ask in plain English: open apps, tap, scroll, type, read the screen, and check results.
 
-The plugin connects to [WebDriverAgent](https://github.com/appium/WebDriverAgent) (WDA). It includes a local MCP server, setup and usage skills. It reuses healthy connections and existing builds; when element targeting fails, it guides the model to inspect a screenshot and try coordinates.
+It uses [WebDriverAgent](https://github.com/appium/WebDriverAgent) (WDA) on the phone and a local MCP server on your Mac.
 
-The plugin sends anonymous usage statistics to its own PostHog project by default: starts, tool calls, connection results, durations and error categories. It uses a random installation ID and never uploads phone images, input text or device identifiers. Set `IPHONE_USE_ANALYTICS=0` or `DO_NOT_TRACK=1` and restart the MCP server to disable it. See [analytics documentation](ANALYTICS.md).
+## Requirements
 
-**Before using iPhone Use, install, sign, and start WDA Runner on your own iPhone.** WDA is the on-device execution service. The setup workflow below helps Claude complete the initial installation; a healthy existing WDA can be reused.
+- macOS with full **Xcode** (Command Line Tools alone are not enough)
+- An iPhone connected by USB: trusted, unlocked, Developer Mode on
+- An Apple account / development team in Xcode (to sign WDA)
+- Python 3.9+ and Node.js 20.19+
 
-## Claude Code quick start (team)
+## Install
 
-**Option A – plugin (MCP + skills):**
+Option A: Claude Code plugin
+
 ```sh
 claude plugin marketplace add khilan-vasundhara/iPhoneUse
 claude plugin install iphone-use@iphone-use
 ```
 
-**Option B – clone + script:**
+Option B: clone and run the script
+
 ```sh
 git clone https://github.com/khilan-vasundhara/iPhoneUse.git ~/iPhoneUse
 sh ~/iPhoneUse/scripts/install-claude.sh
 ```
 
-Restart Claude Code, then ask: *"Use iphone-use-setup to configure my iPhone"*. Each teammate needs full Xcode, their own Apple dev team, and an iPhone on USB (trusted, Developer Mode on). Set `IPHONE_USE_ANALYTICS=0` to disable telemetry. The live-screen widget is Codex-only; Claude Code uses screenshots.
-
-### Live iPhone mirror (browser)
-
-Claude Code has no side panel, so the phone is mirrored on a local web page (`http://127.0.0.1:8765`, your Mac only). Start it after the iPhone is ready (`pua_ready` returns `ready=true`). It shows the live screen with Refresh and Home buttons.
-
-**Terminal users** (pick one):
-- Inside Claude Code, type `/iphone-use:mirror` (plugin install) and Claude starts it for you.
-- Or open a second terminal tab and run `iphone-mirror` (installed by `install-claude.sh`; add `~/.local/bin` to your PATH) or `python3 ~/iPhoneUse/scripts/mirror.py`.
-- Then put the browser window next to the terminal (macOS: hold the green window button, or use Rectangle/split screen).
-
-**VS Code (Claude Code extension) users:**
-1. Run the task: Cmd+Shift+P, "Tasks: Run Task", "iPhone Mirror" (from `.vscode/tasks.json`; copy it into your own project, or use the `iphone-mirror` command in the VS Code terminal).
-2. Cmd+Shift+P, "Simple Browser: Show", enter `http://127.0.0.1:8765`.
-3. Drag the Simple Browser tab to the side of the Claude Code panel for a split view.
-
-## Requirements
-
-| Requirement | Purpose |
-| --- | --- |
-| macOS and Claude Code | Local plugin installation and MCP |
-| Full Xcode with first-launch setup completed | Build, sign, deploy, and run WDA; Command Line Tools alone are insufficient |
-| An Apple account and development team available in Xcode | Sign the on-device WDA Runner |
-| A real iPhone connected over USB | Trust the Mac, enable Developer Mode when required, and keep it unlocked during installation / startup |
-| Python 3.9+ | Run the MCP server using Python's standard library |
-| Node.js 20.19+, 22.12+, or 24+; npm 10+ | USB forwarding and screen streaming; see the project engines and doctor checks |
-
-Xcode must support the phone's iOS version. No jailbreak or separate Appium Server is required. Setup uses a verified, pinned WDA 16.14.0 commit and manages downloads, dependencies, signing, and builds locally.
-
-## Install and start WDA on your own iPhone
-
-The phone-side service comes from [Appium's WebDriverAgent](https://github.com/appium/WebDriverAgent). First-time setup signs and installs `WebDriverAgentRunner` using your own Apple account and development team.
-
-The installation prompt and `iphone-use-setup` workflow fetch the project's pinned WDA version, configure signing, build, deploy, and start it. Claude will explain any steps requiring your input.
-
-For manual Xcode setup:
-
-1. Connect your iPhone over USB, trust the Mac, enable Developer Mode when required, and configure your Apple account in Xcode.
-2. Open `WebDriverAgent.xcodeproj`, select the `WebDriverAgentRunner` scheme and your iPhone, and configure your Team and a signable Bundle Identifier in the Runner target's **Signing & Capabilities**.
-3. Use **Product → Test** to build, install, and start the runner. Complete any trust prompts on the phone. The WDA service must remain running.
-
-After installing the plugin and configuring USB connectivity, start phone tasks only when `pua_ready` returns `ready=true`. See [Appium's device preparation guide](https://appium.github.io/appium-xcuitest-driver/latest/getting-started/device-setup/) for device and signing requirements.
-
-## Install and connect
-
-See **Claude Code quick start** above. After installing, restart Claude Code and ask:
-
-> Use iphone-use-setup to configure my USB-connected iPhone, install and start WDA, and verify READY.
-
-Setup covers diagnostics, device discovery, signing configuration, download, background build, and startup. Existing configurations and builds are reused. Phone tasks start only after `pua_ready` returns `ready=true`.
-
-Codex users can still run `sh scripts/install.sh`.
-
-## Features
-
-| Feature | Behavior |
-| --- | --- |
-| App navigation | Launch apps and navigate search, details, settings, or drafts |
-| Screen reading | Compact accessibility trees, text, positions, and actual screenshots |
-| Taps and gestures | Element or coordinate taps, swipes, drags, and bounded waits |
-| Unicode and long text | Complete text input, chunked long-text entry, and continuation |
-| Batch workflows | Combine known actions into one call to reduce model round trips |
-| List search and collection | Bounded scrolling, overlap, deduplication, and explicit coverage |
-| Visual recovery | Inspect a fresh screenshot when targets are occluded, unfocused, or missing from the tree |
-| Live preview | An iPhone frame, status, edge effects, and visible tap / drag indicators |
-| Connection recovery | Reuse startup jobs, recreate invalid sessions, and reconnect preview with Refresh |
-
-Example prompts:
-
-```text
-Open Notes, create a draft with the following text, verify it, and leave it there.
-
-Open the target app, search for this name, and summarize the first few results.
-
-Read this list while scrolling with overlap. Deduplicate entries and state the
-covered range and any remaining uncertainty.
-```
-
-Text input and submission are separate; text is not submitted by default. The model checks key screens, recipients, counts, and final results. Passwords, verification codes, and Face ID are handled by the user; preview can be paused during handoff.
-
-Repeated preview opens in the same chat reuse the existing widget. Its toolbar offers Refresh, Home, and Screenshot. Without an image, the iPhone frame shows a dark screen with a centered status icon; the top badge displays the connection or pause state. The preview is for the user; model decisions use actual tool observations.
-
-## Technical details
-
-- **Local USB transport:** Python accesses WDA through a loopback-only forwarder; runtime and signing data stay on the Mac.
-- **Reuse:** persistent HTTP connections, WDA sessions, healthy services, and builds reduce repeated work.
-- **Compact observations and compound actions:** omit duplicate tree fields, skip XML for screenshot-only reads, and reduce turns with batch / scroll-search / list collection.
-- **Background setup:** downloads, builds, and startup return queryable job IDs; repeated setup reuses matching active jobs.
-- **Screenshot fallback:** inspect the image and multiply pixels by `image.pixel_to_point` to obtain iPhone point coordinates for `pua_tap`.
-- **Explicit failure semantics:** a shared operation lock guards concurrent processes; uncertain mutations require reading the actual state before retrying.
-- **Preview lifecycle:** streamed frames are not saved to disk; lock-induced pauses and explicit pauses are distinguished, and Refresh can reconnect.
-
-These changes reduce duplicate requests and model round trips. Overall task speed still depends on the app, USB / WDA state, and model response time. Engineering regressions and device acceptance checks are recorded separately in local development notes.
-
-## Tools
-
-There are 17 model tools and 2 additional widget-only tools.
-
-| Tools | Purpose |
-| --- | --- |
-| `pua_doctor`, `pua_setup`, `pua_ready` | Diagnostics, configuration, background installation / startup, readiness |
-| `pua_observe`, `pua_find` | Trees, screenshots, and target queries |
-| `pua_apps`, `pua_launch_app` | App identifiers, installation evidence, app launch |
-| `pua_tap`, `pua_swipe`, `pua_press_button` | Taps, swipes, and device buttons |
-| `pua_type_text`, `pua_wait` | Unicode input and bounded waits |
-| `pua_batch`, `pua_scroll_find`, `pua_collect_list` | Compound actions, search, collection |
-| `pua_screen`, `pua_metrics` | Preview controls and bounded timing statistics |
-
-Abnormal UI states return a screenshot for the model to inspect before choosing another action. Scroll search performs at most one swipe per call and stops if the target remains unreachable; occlusion, unproven scroll progress, input mismatch, and failed page expectations use the same fallback. Existing screenshots are reused, without automatic extra gestures or action replay.
-
-## Runtime data and updates
-
-New installations use `~/.local/share/iphone-use/`. Set `IPHONE_USE_STATE_DIR` for another external directory; `WDA_STATE_DIR` remains supported. If the new default directory does not exist, an existing older configuration directory is reused so device configuration and builds are retained.
-
-Runtime directories use mode 700 and private configuration / image files use 600. Explicit screenshots have retention limits; preview streams stay in memory. Signing material, device data, logs, and dependency directories are excluded from source packages. `WDA_URL` accepts a local address; the default forwarded port is 18100, and remote addresses are rejected.
+Restart Claude Code, then check that `iphone_use` shows as connected:
 
 ```sh
-git pull --ff-only
-sh scripts/install.sh
+claude mcp list
 ```
 
-Reconnect the chat after updating. For connection failures, check USB, unlocking, Developer Mode, signing, and the specific setup error. Query an existing startup job before restarting again.
+## First-time phone setup
 
-## Development and documentation
+Ask Claude Code:
+
+> Use iphone-use-setup to configure my iPhone.
+
+It finds your phone, signs and builds WDA with your own Apple team, and starts it. You will need to approve trust, Developer Mode or unlock prompts on the phone. Tests can start once `pua_ready` returns `ready=true`.
+
+## Use it
+
+Just ask, for example:
+
+> Open Settings and tell me the iOS version.
+>
+> Open my app, log in with the test account, and check that the home screen loads.
+
+Passwords, verification codes and Face ID are always completed by you on the phone. Claude will pause and wait.
+
+## Watch the phone live
+
+Claude Code has no side panel, so use the browser mirror (local to your Mac):
 
 ```sh
-npm ci --prefix ui --no-audit --no-fund
-npm run build --prefix ui
-sh scripts/check.sh
-python3 scripts/package.py
+python3 ~/iPhoneUse/scripts/mirror.py     # opens http://127.0.0.1:8765
 ```
 
-The UI builds into self-contained HTML. Source packages are written to `dist/iphone-use-<version>-source.zip`; normal installation and use do not require rebuilding the UI. Installed plugins retain the complete widget source, styles, build scripts, configuration, dependency lockfile, and widget tests for local maintenance.
+- **Terminal:** run it in a second tab, or type `/iphone-use:mirror` in Claude Code. Put the browser next to the terminal.
+- **VS Code:** run the task **iPhone Mirror** (from `.vscode/tasks.json`), then Cmd+Shift+P → **Simple Browser: Show** → `http://127.0.0.1:8765`, and drag the tab beside Claude Code.
 
-See [screen preview and recovery](skills/iphone-use/references/screen.md), [app identifiers](skills/iphone-use/references/apps.md), [troubleshooting](skills/iphone-use-setup/references/troubleshooting.md), and [changelog](CHANGELOG.md).
+## Troubleshooting
 
-## Dependencies and acknowledgements
+| Problem | Fix |
+| --- | --- |
+| `iphone_use` not connected | Restart Claude Code, run `claude mcp list`, re-run the install step |
+| `pua_ready` is not ready | Unlock the phone, reconnect USB, then ask Claude to run `pua_setup` status / restart WDA |
+| Signing or build error | Check your Apple team and a unique bundle ID in Xcode |
+| Mirror is blank | Make sure `pua_ready` is `ready=true` first |
 
-This project relies on the [Appium](https://github.com/appium/appium) ecosystem and [WebDriverAgent](https://github.com/appium/WebDriverAgent). WDA provides the on-device automation service; [appium-ios-device](https://github.com/appium/appium-ios-device) provides USB device communication, port forwarding, and screen-stream connectivity. iPhone Use adds the Codex plugin, MCP tools, setup guidance, and screen widget. A separate Appium Server is not required.
+## Privacy
 
-Thanks to the maintainers and contributors of Appium, WebDriverAgent, and related projects for making real iPhone automation possible.
+Anonymous usage statistics are on by default. They never include screenshots, typed text or device IDs. Disable with:
 
-MIT License. See [third-party notices](THIRD_PARTY_NOTICES.md).
+```sh
+export IPHONE_USE_ANALYTICS=0
+```
+
+## Credits
+
+Based on [zhongerxin/iPhone-use](https://github.com/zhongerxin/iPhone-use) (MIT) and Appium's WebDriverAgent. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Codex users can still install with `sh scripts/install.sh`.
