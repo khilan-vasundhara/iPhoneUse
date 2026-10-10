@@ -24,6 +24,14 @@ sh ~/iPhoneUse/scripts/install-claude.sh
 
 Restart Claude Code, then ask: *"Use iphone-use-setup to configure my iPhone"*. Each teammate needs full Xcode, their own Apple dev team, and an iPhone on USB (trusted, Developer Mode on). Set `IPHONE_USE_ANALYTICS=0` to disable telemetry. The live-screen widget is Codex-only; Claude Code uses screenshots.
 
+### Live iPhone mirror (browser)
+
+Claude Code has no side panel, so run this in a terminal to watch the phone live in your browser:
+```sh
+python3 ~/iPhoneUse/scripts/mirror.py        # opens http://127.0.0.1:8765
+```
+It shows the live screen with Refresh and Home buttons, and runs only on your Mac (localhost). Start it after the iPhone is ready (`pua_ready` returns `ready=true`). Claude can tap, type and test while you watch.
+
 ## Requirements
 
 | Requirement | Purpose |
