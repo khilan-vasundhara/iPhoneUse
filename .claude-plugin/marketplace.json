@@ -1,0 +1,11 @@
+{
+  "name": "iphone-use",
+  "owner": { "name": "iPhone Use" },
+  "plugins": [
+    {
+      "name": "iphone-use",
+      "source": "./",
+      "description": "Control a real iPhone from Claude Code (tap, type, screenshot, run tests)."
+    }
+  ]
+}

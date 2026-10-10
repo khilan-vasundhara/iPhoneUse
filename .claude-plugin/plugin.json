@@ -1,0 +1,7 @@
+{
+  "name": "iphone-use",
+  "version": "0.3.6",
+  "description": "Let Claude Code test on a real iPhone over USB via WebDriverAgent.",
+  "license": "MIT",
+  "skills": "./skills/"
+}

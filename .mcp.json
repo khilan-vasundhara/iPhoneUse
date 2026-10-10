@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "iphone_use": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server/iphone_use.py"],
+      "cwd": "${CLAUDE_PLUGIN_ROOT}"
+    }
+  }
+}

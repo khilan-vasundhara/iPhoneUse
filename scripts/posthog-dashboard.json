@@ -1,0 +1,372 @@
+{
+  "projectId": 653022,
+  "dashboardId": 2185876,
+  "name": "iPhone-use | Usage and Stability",
+  "timezone": "Asia/Shanghai",
+  "insights": [
+    {
+      "name": "01 | Daily Active Installs",
+      "description": "Daily anonymous installs that successfully called a task tool or READY; excludes diagnostics, setup, metrics and preview controls. Installs are not the same as real users.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_tool_called",
+            "math": "dau",
+            "properties": [
+              {
+                "key": "outcome",
+                "value": [
+                  "success"
+                ],
+                "operator": "exact",
+                "type": "event"
+              },
+              {
+                "key": "tool_name",
+                "value": [
+                  "pua_doctor",
+                  "pua_setup",
+                  "pua_metrics",
+                  "pua_screen",
+                  "pua_screen_action"
+                ],
+                "operator": "is_not",
+                "type": "event"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "02 | Daily MCP Launches",
+      "description": "Daily count of first initialize or first tool call per MCP process; a restart creates a new launch; not a chat session count.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_session_started",
+            "math": "total",
+            "properties": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "03 | Tool Usage Distribution",
+      "description": "Call counts by tool name, including success, pending and failure; screen frame polling is excluded. A batch counts as one call.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_tool_called",
+            "math": "total",
+            "properties": []
+          }
+        ],
+        "breakdownFilter": {
+          "breakdowns": [
+            {
+              "property": "tool_name",
+              "type": "event"
+            }
+          ]
+        },
+        "trendsFilter": {
+          "display": "ActionsBarValue"
+        }
+      }
+    },
+    {
+      "name": "04 | READY Connection Results",
+      "description": "Connection check results by ready/recovering/recovery_required/not_ready/error; pending recovery is not counted as success.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_ready_result",
+            "math": "total",
+            "properties": []
+          }
+        ],
+        "breakdownFilter": {
+          "breakdowns": [
+            {
+              "property": "ready_state",
+              "type": "event"
+            }
+          ]
+        },
+        "trendsFilter": {
+          "display": "ActionsBar"
+        }
+      }
+    },
+    {
+      "name": "05 | Tool Call Failure Rate",
+      "description": "Daily calls with outcome=error / all calls. Pending is included in the denominator, screen polling is excluded; a 0 shown on days with no calls does not indicate stability.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_tool_called",
+            "math": "total",
+            "properties": [
+              {
+                "key": "outcome",
+                "value": [
+                  "error"
+                ],
+                "operator": "exact",
+                "type": "event"
+              }
+            ]
+          },
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_tool_called",
+            "math": "total",
+            "properties": []
+          }
+        ],
+        "trendsFilter": {
+          "formulaNodes": [
+            {
+              "formula": "A/B",
+              "custom_name": "Failure Rate"
+            }
+          ],
+          "aggregationAxisFormat": "percentage_scaled"
+        }
+      }
+    },
+    {
+      "name": "06 | Duration by Tool",
+      "description": "Average and P95 duration (ms) by tool name, including run-lock wait, excluding PostHog network send and MCP queue time.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_tool_called",
+            "math": "avg",
+            "properties": [],
+            "math_property": "duration_ms",
+            "custom_name": "Average Duration"
+          },
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_tool_called",
+            "math": "p95",
+            "properties": [],
+            "math_property": "duration_ms",
+            "custom_name": "P95 Duration"
+          }
+        ],
+        "breakdownFilter": {
+          "breakdowns": [
+            {
+              "property": "tool_name",
+              "type": "event"
+            }
+          ]
+        },
+        "trendsFilter": {
+          "display": "ActionsTable",
+          "aggregationAxisFormat": "duration_ms"
+        }
+      }
+    },
+    {
+      "name": "07 | Call Error Categories",
+      "description": "Failed calls grouped by allowed error_code. Errors not on the allowlist are grouped as other; error messages are not uploaded.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_tool_called",
+            "math": "total",
+            "properties": [
+              {
+                "key": "outcome",
+                "value": [
+                  "error"
+                ],
+                "operator": "exact",
+                "type": "event"
+              }
+            ]
+          }
+        ],
+        "breakdownFilter": {
+          "breakdowns": [
+            {
+              "property": "error_code",
+              "type": "event"
+            }
+          ]
+        },
+        "trendsFilter": {
+          "display": "ActionsBarValue"
+        }
+      }
+    },
+    {
+      "name": "08 | Setup and Launch Actions",
+      "description": "pua_setup calls by action and outcome. queued/running only means a job was submitted or is waiting, not that the background build or launch has finished.",
+      "query": {
+        "kind": "TrendsQuery",
+        "dateRange": {
+          "date_from": "-30d"
+        },
+        "interval": "day",
+        "properties": [
+          {
+            "key": "environment",
+            "value": [
+              "production"
+            ],
+            "operator": "exact",
+            "type": "event"
+          }
+        ],
+        "filterTestAccounts": false,
+        "series": [
+          {
+            "kind": "EventsNode",
+            "event": "iphone_use_setup_result",
+            "math": "total",
+            "properties": []
+          }
+        ],
+        "breakdownFilter": {
+          "breakdowns": [
+            {
+              "property": "setup_action",
+              "type": "event"
+            },
+            {
+              "property": "outcome",
+              "type": "event"
+            }
+          ]
+        },
+        "trendsFilter": {
+          "display": "ActionsBarValue"
+        }
+      }
+    }
+  ]
+}

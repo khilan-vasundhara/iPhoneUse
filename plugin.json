@@ -1,0 +1,27 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "iphone-use",
+  "version": "0.3.6",
+  "description": "Let Codex operate a real iPhone over USB, with guided setup, app automation, a live screen and screenshot fallback.",
+  "author": {
+    "name": "ZHONG XIN"
+  },
+  "license": "MIT",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "iPhone Use",
+        "shortDescription": "Let Codex control your iPhone",
+        "longDescription": "Read and operate a real iPhone through PUA (Phone Use Agent). It diagnoses USB, Xcode and signing configuration, reuses healthy connections for taps, scrolls, text input and multi-step tasks, shows the phone screen live, falls back to screenshots and coordinates when element targeting fails, and verifies key results.",
+        "developerName": "ZHONG XIN",
+        "category": "Productivity",
+        "logo": "./assets/icon.svg",
+        "composerIcon": "./assets/icon.svg",
+        "defaultPrompt": [
+          "Help me install iPhone Use, set up my iPhone and verify the connection.",
+          "Use iPhone Use to complete my phone task and verify the final key result."
+        ]
+      }
+    }
+  }
+}
