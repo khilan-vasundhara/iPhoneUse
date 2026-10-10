@@ -26,11 +26,17 @@ Restart Claude Code, then ask: *"Use iphone-use-setup to configure my iPhone"*. 
 
 ### Live iPhone mirror (browser)
 
-Claude Code has no side panel, so run this in a terminal to watch the phone live in your browser:
-```sh
-python3 ~/iPhoneUse/scripts/mirror.py        # opens http://127.0.0.1:8765
-```
-It shows the live screen with Refresh and Home buttons, and runs only on your Mac (localhost). Start it after the iPhone is ready (`pua_ready` returns `ready=true`). Claude can tap, type and test while you watch.
+Claude Code has no side panel, so the phone is mirrored on a local web page (`http://127.0.0.1:8765`, your Mac only). Start it after the iPhone is ready (`pua_ready` returns `ready=true`). It shows the live screen with Refresh and Home buttons.
+
+**Terminal users** (pick one):
+- Inside Claude Code, type `/iphone-use:mirror` (plugin install) and Claude starts it for you.
+- Or open a second terminal tab and run `iphone-mirror` (installed by `install-claude.sh`; add `~/.local/bin` to your PATH) or `python3 ~/iPhoneUse/scripts/mirror.py`.
+- Then put the browser window next to the terminal (macOS: hold the green window button, or use Rectangle/split screen).
+
+**VS Code (Claude Code extension) users:**
+1. Run the task: Cmd+Shift+P, "Tasks: Run Task", "iPhone Mirror" (from `.vscode/tasks.json`; copy it into your own project, or use the `iphone-mirror` command in the VS Code terminal).
+2. Cmd+Shift+P, "Simple Browser: Show", enter `http://127.0.0.1:8765`.
+3. Drag the Simple Browser tab to the side of the Claude Code panel for a split view.
 
 ## Requirements
 

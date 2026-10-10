@@ -8,4 +8,8 @@ claude mcp add -s user iphone_use -- python3 "$root/server/iphone_use.py"
 
 mkdir -p "$HOME/.claude/skills"
 for s in iphone-use iphone-use-setup; do ln -sfn "$root/skills/$s" "$HOME/.claude/skills/$s"; done
+mkdir -p "$HOME/.local/bin"
+printf '#!/bin/sh\nexec python3 "%s/scripts/mirror.py" "$@"\n' "$root" > "$HOME/.local/bin/iphone-mirror"
+chmod +x "$HOME/.local/bin/iphone-mirror"
+echo "Mirror command: iphone-mirror (add ~/.local/bin to PATH if needed)"
 echo "Done. Restart Claude Code, then ask: use iphone-use-setup to configure my iPhone."
